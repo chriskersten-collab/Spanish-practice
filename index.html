@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Optimization -->
+  <title>Voces de México | Interactive Mexican Spanish Conversation Practice</title>
+  <meta name="description" content="Practice realistic everyday conversations in Mexican Spanish. Listen to native-like audio dialogues, speak using voice recognition, and get real-time English coaching.">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Incremental styles for Engine Badges & Controls */
+    .engine-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(211, 84, 0, 0.08);
+      padding: 0.4rem 1rem;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary);
+      border: 1px solid rgba(211, 84, 0, 0.15);
+      cursor: pointer;
+      transition: var(--transition-normal);
+    }
+    .engine-badge:hover {
+      background: rgba(211, 84, 0, 0.15);
+      transform: scale(1.03);
+    }
+    .engine-selector-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(44, 62, 80, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease-out;
+    }
+    .engine-modal {
+      background: var(--bg-card);
+      border-radius: var(--border-radius-xl);
+      padding: 2rem;
+      max-width: 480px;
+      width: 90%;
+      box-shadow: var(--shadow-hover);
+      border: 1px solid rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .engine-option {
+      border: 2px solid rgba(0,0,0,0.05);
+      border-radius: var(--border-radius-md);
+      padding: 1rem;
+      cursor: pointer;
+      transition: var(--transition-normal);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+    .engine-option:hover {
+      border-color: rgba(var(--primary-rgb), 0.3);
+      background: rgba(var(--primary-rgb), 0.02);
+    }
+    .engine-option.active {
+      border-color: var(--primary);
+      background: rgba(var(--primary-rgb), 0.05);
+    }
+    .engine-option.disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      background: #f8f9fa;
+    }
+    .engine-option.disabled:hover {
+      border-color: rgba(0,0,0,0.05);
+      background: #f8f9fa;
+    }
+    .engine-option-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .engine-option-title {
+      font-weight: 700;
+      color: var(--text-main);
+      font-size: 0.95rem;
+    }
+    .engine-option-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .close-modal-btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 0.75rem;
+      border-radius: var(--border-radius-sm);
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition-normal);
+      text-align: center;
+    }
+    .close-modal-btn:hover {
+      background: var(--primary-light);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Secure Client-Side Passcode Protection Overlay -->
+  <div class="passcode-overlay" id="passcodeOverlay">
+    <div class="passcode-card">
+      <span style="font-size: 3rem;" aria-hidden="true">🔐</span>
+      <h2>Voces de México</h2>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">This private beta is restricted. Please enter the secret passcode to begin your Spanish conversation practice.</p>
+      <input type="password" id="passcodeInput" placeholder="Enter passcode..." aria-label="Passcode Input">
+      <button id="passcodeSubmitBtn">Unlock App</button>
+      <p id="passcodeError" style="color: var(--danger); font-size: 0.85rem; font-weight: 600; display: none;">⚠️ Incorrect passcode. Please try again!</p>
+    </div>
+  </div>
+
+  <!-- App Header with Colorful Mosaic -->
+  <header class="app-header">
+    <div class="header-mosaic"></div>
+    <div class="logo-container">
+      <span class="logo-icon" aria-hidden="true">🇲🇽</span>
+      <div class="logo-text">
+        <h1>Voces de México</h1>
+        <p>Spanish Conversation Coach</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="engine-badge" id="engineBadge" role="button" aria-haspopup="dialog" aria-label="Select AI engine">🤖 Engine: Local Heuristics</div>
+      <div class="voice-badge" id="voiceStatusBadge">Detecting Spanish Voice...</div>
+    </div>
+  </header>
+
+  <!-- Main Body Content Container -->
+  <main class="app-container">
+
+    <!-- Dashboard: Scenario Selection Catalog -->
+    <section id="dashboard" class="dashboard-section">
+      <div class="hero-section">
+        <h2>Practice Mexican Spanish Naturally</h2>
+        <p>Select an everyday activity below to begin an interactive roleplay. Listen to the character speak, respond using your microphone, and receive custom coaching on vocabulary, local slang, and politeness!</p>
+      </div>
+
+      <!-- Scenarios Grid (Loaded dynamically from app.js) -->
+      <div class="scenarios-grid" id="scenariosGrid">
+        <!-- Injected via JavaScript -->
+      </div>
+    </section>
+
+    <!-- Practice Arena (Hidden until a scenario is loaded) -->
+    <section id="practiceArena" class="practice-arena hidden">
+      
+      <!-- Left Column: The Interactive Dialogue Session -->
+      <div class="conversation-pane">
+        <div class="pane-card">
+          <div class="pane-header" id="arenaHeader">
+            <h3 id="arenaTitle">
+              <span id="arenaCharacterEmoji">🌮</span>
+              <span id="arenaCharacterName">Don Chema</span>
+            </h3>
+            <button class="back-button" id="backToDashboardBtn">← End Scenario</button>
+          </div>
+
+          <!-- Description and Objectives -->
+          <div class="scenario-info-bar">
+            <p id="scenarioDescription">Loading scenario details...</p>
+            <div class="objective-box">
+              <strong>Your Challenge</strong>
+              <p id="scenarioObjective">Loading objectives...</p>
+            </div>
+          </div>
+
+          <!-- Chat Dialog Flow -->
+          <div class="chat-board" id="chatBoard">
+            <!-- Dynamic Dialogue Speech bubbles loaded via app.js -->
+          </div>
+
+          <!-- Speech / Voice / Keyboard Dock -->
+          <div class="control-panel">
+            <div class="status-toast" id="systemStatusToast">Click the microphone to speak, or type below!</div>
+            
+            <div class="action-dock">
+              <!-- Speech Recognition Microphone Button -->
+              <div class="mic-button-wrapper">
+                <button class="mic-button" id="micBtn" title="Speak in Spanish" aria-label="Speak response in Spanish">
+                  🎤
+                </button>
+              </div>
+
+              <!-- Backup Text Keyboard Input -->
+              <div class="text-input-field">
+                <input type="text" id="textInput" placeholder="Type your reply in Spanish..." aria-label="Type response in Spanish">
+                <button class="send-text-btn" id="sendTextBtn" title="Send text response" aria-label="Send reply">
+                  ➔
+                </button>
+              </div>
+            </div>
+
+            <!-- Voice Pitch / Speech Speed customizers -->
+            <div class="voice-controls">
+              <span>Auto-play character voice</span>
+              <div class="speed-slider">
+                <span>Speed:</span>
+                <input type="range" id="speechSpeed" min="0.6" max="1.2" step="0.1" value="0.9" aria-label="Adjust narration speed">
+                <span id="speedDisplay">0.9x</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: The English Coach Feedback Panel -->
+      <aside class="coach-pane" aria-labelledby="coachTitle">
+        <div class="pane-card" style="height: 100%;">
+          <div class="pane-header accented">
+            <h3 id="coachTitle">
+              <span aria-hidden="true">💡</span>
+              <span>English Coach AI</span>
+            </h3>
+            <div class="coach-status-header">
+              <span></span> Active
+            </div>
+          </div>
+
+          <div class="coach-body" id="coachBody">
+            <!-- Empty state when conversation starts -->
+            <div class="coach-empty-state" id="coachEmptyState">
+              <div class="coach-empty-icon" aria-hidden="true">🇲🇽</div>
+              <h4>Tu Entrenador de Español</h4>
+              <p>Speak or type a response in Spanish! Your English Coach will break down your vocabulary, polite expressions, Mexican-specific terms, and grammar in this panel.</p>
+            </div>
+
+            <!-- Active feedback card loaded dynamically -->
+            <div class="coach-card hidden" id="coachFeedbackCard">
+              <div class="coach-section">
+                <h4>🇺🇸 Translation</h4>
+                <p id="coachTranslation">"Sure, what kind of tacos would you like?"</p>
+              </div>
+              <div class="coach-section">
+                <h4>📢 Pronunciation & Quality</h4>
+                <div class="feedback-tag correct" id="coachAccuracyTag">Excelente (Excellent)</div>
+                <p id="coachAccuracyFeedback">Your phrasing is highly natural and easy to understand.</p>
+              </div>
+              <div class="coach-section">
+                <h4>🌶️ Mexican Culture & Slang Tip</h4>
+                <p id="coachCultureFeedback">In Mexico, when ordering food, it is exceptionally common and polite to use <strong>"Me da..."</strong> (Give me...) or <strong>"Me regala..."</strong> (Gift me...) instead of the literal <strong>"Yo quiero"</strong> (I want). Using "por favor" adds the perfect respectful touch!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Celebration & Completion overlay -->
+      <div class="celebration-screen hidden" id="celebrationScreen">
+        <div class="celebration-badge" aria-hidden="true">🎉</div>
+        <h2>¡Excelente Trabajo!</h2>
+        <p id="celebrationText">You successfully completed this everyday Mexican conversation challenge!</p>
+        <button class="celebration-btn" id="finishScenarioBtn">Return to Scenarios</button>
+      </div>
+
+    </section>
+
+    <!-- Visual Phrasebook Section -->
+    <section class="phrasebook-section" id="phrasebook">
+      <div class="phrasebook-header">
+        <div>
+          <h2>Mexicano Phrasebook</h2>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">Handy, polite expressions commonly used in Mexican everyday transactions. Click to hear them spoken!</p>
+        </div>
+      </div>
+
+      <div class="phrasebook-grid">
+        <!-- Phrase 1: Polite ordering -->
+        <article class="phrase-card">
+          <button class="phrase-play-btn" data-phrase="Disculpe, ¿me da tres tacos al pastor, por favor?" title="Play audio">🔊</button>
+          <div class="phrase-content">
+            <span class="phrase-tag">Taquería</span>
+            <span class="phrase-es">"Disculpe, ¿me da tres tacos al pastor, por favor?"</span>
+            <span class="phrase-en">"Excuse me, could I have three tacos al pastor, please?"</span>
+          </div>
+        </article>
+
+        <!-- Phrase 2: To-go -->
+        <article class="phrase-card">
+          <button class="phrase-play-btn" data-phrase="Para llevar, por favor." title="Play audio">🔊</button>
+          <div class="phrase-content">
+            <span class="phrase-tag">Eating Out</span>
+            <span class="phrase-es">"Para llevar, por favor."</span>
+            <span class="phrase-en">"To go, please." (Crucial Mexican phrase instead of 'para llevar afuera').</span>
+          </div>
+        </article>
+
+        <!-- Phrase 3: Finding things -->
+        <article class="phrase-card">
+          <button class="phrase-play-btn" data-phrase="Disculpe la molestia, ¿dónde puedo encontrar las tortillas de maíz?" title="Play audio">🔊</button>
+          <div class="phrase-content">
+            <span class="phrase-tag">Supermercado</span>
+            <span class="phrase-es">"Disculpe la molestia, ¿dónde puedo encontrar...?"</span>
+            <span class="phrase-en">"Excuse the bother, where could I find...?" (Highly polite introductory phrase).</span>
+          </div>
+        </article>
+
+        <!-- Phrase 4: Dog walking details -->
+        <article class="phrase-card">
+          <button class="phrase-play-btn" data-phrase="Es un perro rescatado, se llama Pancho y es súper amigable." title="Play audio">🔊</button>
+          <div class="phrase-content">
+            <span class="phrase-tag">Dog Walking</span>
+            <span class="phrase-es">"Se llama Pancho y es súper amigable."</span>
+            <span class="phrase-en">"His name is Pancho and he is super friendly." (Perfect dog-walk vocabulary).</span>
+          </div>
+        </article>
+
+        <!-- Phrase 5: Dog gender -->
+        <article class="phrase-card">
+          <button class="phrase-play-btn" data-phrase="Es hembra, tiene tres años de edad." title="Play audio">🔊</button>
+          <div class="phrase-content">
+            <span class="phrase-tag">Dog Walking</span>
+            <span class="phrase-es">"Es hembra, tiene tres años de edad."</span>
+            <span class="phrase-en">"She is a female, she is three years old." (Using 'hembra' for animal gender).</span>
+          </div>
+        </article>
+
+        <!-- Phrase 6: Shoe shopping sizes -->
+        <article class="phrase-card">
+          <button class="phrase-play-btn" data-phrase="Disculpe, ¿las tiene en número siete, por favor?" title="Play audio">🔊</button>
+          <div class="phrase-content">
+            <span class="phrase-tag">Shopping</span>
+            <span class="phrase-es">"Disculpe, ¿las tiene en número siete, por favor?"</span>
+            <span class="phrase-en">"Excuse me, do you have them in size seven, please?" (Using 'número' for shoe size).</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Engine Selection Modal Dialog (Hidden by Default) -->
+  <div class="engine-selector-overlay hidden" id="engineModalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="engine-modal">
+      <h3 id="modalTitle">Select AI Practice Engine</h3>
+      <p style="color: var(--text-muted); font-size: 0.85rem;">Choose how conversation and coaching replies are generated. Your code is prepared to adapt to all options!</p>
+      
+      <div class="engine-option active" id="opt-local">
+        <span style="font-size: 1.5rem;">📱</span>
+        <div class="engine-option-meta">
+          <span class="engine-option-title">Local Heuristics (Current)</span>
+          <span class="engine-option-desc">Runs entirely on device. Perfect zero-latency, hand-crafted dialogues with specialized Mexican cultural insights. 100% offline.</span>
+        </div>
+      </div>
+
+      <div class="engine-option disabled" id="opt-ollama" title="Future Integration">
+        <span style="font-size: 1.5rem;">🦙</span>
+        <div class="engine-option-meta">
+          <span class="engine-option-title">Local LLM (Ollama)</span>
+          <span class="engine-option-desc">Connects to a local model (e.g. Llama 3) running on your PC. Supports dynamic, completely unconstrained conversations.</span>
+        </div>
+      </div>
+
+      <div class="engine-option disabled" id="opt-cloud" title="Future Integration">
+        <span style="font-size: 1.5rem;">☁️</span>
+        <div class="engine-option-meta">
+          <span class="engine-option-title">Cloud LLM (Gemini / OpenAI)</span>
+          <span class="engine-option-desc">Connects via a secure backend gateway to Gemini 1.5 or 2.0. Infinite conversation paths and professional, fluid coaching.</span>
+        </div>
+      </div>
+
+      <button class="close-modal-btn" id="closeEngineModalBtn">Close & Stay Local</button>
+    </div>
+  </div>
+
+  <footer style="background: var(--bg-card); text-align: center; padding: 2rem; border-top: 1px solid rgba(0,0,0,0.05); color: var(--text-muted); font-size: 0.9rem;">
+    <p>¡Viva el Español! Build natural speech muscle memory for Mexico. Designed with 💖 for high-fidelity language coaching.</p>
+  </footer>
+
+  <!-- App Main Javascript Code -->
+  <script src="app.js"></script>
+</body>
+</html>
