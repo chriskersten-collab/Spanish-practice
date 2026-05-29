@@ -557,7 +557,9 @@ class ConversationEngine {
     this.scenarioId = scenarioId;
     this.scenarioData = SCENARIOS[scenarioId];
     this.currentTurn = 0;
-    this.engineMode = 'local'; // Hook ready: can toggle to 'ollama' or 'cloud'
+    this.engineMode = localStorage.getItem('vocesEngineMode') || 'local';
+    this.apiKey = localStorage.getItem('vocesApiKey') || '';
+    this.conversationHistory = []; // Tracks chat logs for Gemini API context
   }
 
   getCurrentTurnConfig() {
@@ -565,6 +567,10 @@ class ConversationEngine {
   }
 
   hasNextTurn() {
+    if (this.engineMode === 'cloud') {
+      // Cloud LLM allows unconstrained dialogue; we set a realistic practice limit of 5 turns
+      return this.currentTurn < 5;
+    }
     return this.currentTurn < this.scenarioData.turns.length - 1;
   }
 
@@ -572,18 +578,106 @@ class ConversationEngine {
     this.currentTurn++;
   }
 
-  // Future Gateway Endpoint: when switched to LLMs, this method becomes:
-  // async getReply(userInputText) { return await fetch('/api/chat', ...); }
   async processUserInput(userInputText) {
-    const turnConfig = this.getCurrentTurnConfig();
-    
-    // Simulating quick local processing latency
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const feedback = turnConfig.evaluate(userInputText);
-        resolve(feedback);
-      }, 300);
+    if (this.engineMode === 'cloud' && this.apiKey) {
+      return await this.callGeminiAPI(userInputText);
+    } else {
+      // Fallback to local heuristic evaluation
+      const turnConfig = this.getCurrentTurnConfig();
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const feedback = turnConfig.evaluate(userInputText);
+          resolve(feedback);
+        }, 300);
+      });
+    }
+  }
+
+  async callGeminiAPI(userInputText) {
+    // Build Structured System Instruction Prompt
+    const systemPrompt = `You are roleplaying as ${this.scenarioData.characterName}, whose role is: ${this.scenarioData.role} in a scenario called: "${this.scenarioData.title}".
+    The scenario is described as: "${this.scenarioData.description}".
+    The user's challenge objective is: "${this.scenarioData.objective}".
+
+    INSTRUCTIONS:
+    1. Maintain character strictly! Speak ONLY in authentic, warm, natural central Mexican Spanish (use local phrasing, idioms, and manners).
+    2. Respond naturally to the user's latest statement as your character. Keep your character's response short and clear (1-2 sentences).
+    3. Also act as their English Coach! Analyze the user's latest Spanish input ("${userInputText}") and evaluate it:
+       - Provide a direct English translation of the user's input.
+       - Evaluate their Spanish accuracy and phrasing. Give a score: "Excelente", "Correcto", "Bien", or "Inexacto".
+       - Provide helpful English coaching feedback on their grammar, pronunciation, and spelling in "accuracyFeedback".
+       - Highlight Mexican cultural tips, local vocabulary choices (e.g. why they should use "Me da" instead of "quiero", or "para llevar" instead of "para ir"), or local slang in "cultureTip". Make sure it is specific and highly educational!
+
+    OUTPUT FORMAT:
+    You MUST return a JSON object with this exact structure (no markdown formatting, no outer wrappers other than JSON):
+    {
+      "characterText": "Your character's next spoken line in Spanish (1-2 sentences)",
+      "translation": "English translation of what the user just said",
+      "accuracy": "Excelente | Correcto | Bien | Inexacto",
+      "accuracyFeedback": "Detailed, encouraging English feedback on their spelling, grammar, and pronunciation.",
+      "cultureTip": "Helpful insight on Mexican culture, slang, or polite phrasing related to this interaction."
+    }`;
+
+    // Record user input to active conversation history
+    this.conversationHistory.push({
+      role: "user",
+      parts: [{ text: userInputText }]
     });
+
+    // Construct API request body payloads
+    const contents = [
+      {
+        role: "user",
+        parts: [{ text: systemPrompt }]
+      },
+      ...this.conversationHistory
+    ];
+
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`;
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: contents,
+          generationConfig: {
+            responseMimeType: "application/json"
+          }
+        })
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`API Error: ${response.status} - ${errText}`);
+      }
+
+      const json = await response.json();
+      const rawText = json.candidates[0].content.parts[0].text;
+      const data = JSON.parse(rawText);
+
+      // Record character reply to active conversation history
+      this.conversationHistory.push({
+        role: "model",
+        parts: [{ text: data.characterText }]
+      });
+
+      return {
+        translation: data.translation,
+        accuracy: data.accuracy,
+        accuracyFeedback: data.accuracyFeedback,
+        cultureFeedback: data.cultureTip,
+        dynamicSpeechText: data.characterText
+      };
+    } catch (err) {
+      console.error("Gemini API Error:", err);
+      return {
+        translation: `Error calling Gemini: ${err.message}`,
+        accuracy: "Error",
+        accuracyFeedback: "Please check your API key in settings or try again.",
+        cultureFeedback: "⚠️ Double-check your internet connection and verify your Gemini API key in the top settings modal."
+      };
+    }
   }
 }
 
@@ -817,7 +911,15 @@ async function handleUserSubmit(userInputText) {
   if (activeEngine.hasNextTurn()) {
     activeEngine.advanceTurn();
     setTimeout(() => {
-      loadNextCharacterTurn();
+      // In cloud mode, the next character turn is dynamically returned by Gemini API!
+      if (activeEngine.engineMode === 'cloud' && feedback.dynamicSpeechText) {
+        addChatBubble('character', activeEngine.scenarioData.characterName, feedback.dynamicSpeechText, feedback.dynamicSpeechText);
+        speakText(feedback.dynamicSpeechText);
+        systemStatusToast.textContent = "Your turn! Respond organically.";
+        systemStatusToast.style.color = "var(--primary)";
+      } else {
+        loadNextCharacterTurn();
+      }
     }, 3000);
   } else {
     setTimeout(() => {
@@ -954,6 +1056,60 @@ function init() {
     }
   });
 
+  // Modal Configuration Panel Selectors
+  const optLocal = document.getElementById('opt-local');
+  const optCloud = document.getElementById('opt-cloud');
+  const apiKeyContainer = document.getElementById('apiKeyContainer');
+  const geminiApiKey = document.getElementById('geminiApiKey');
+  const toggleKeyVisibilityBtn = document.getElementById('toggleKeyVisibilityBtn');
+
+  // Load saved settings
+  const savedMode = localStorage.getItem('vocesEngineMode') || 'local';
+  const savedKey = localStorage.getItem('vocesApiKey') || '';
+  geminiApiKey.value = savedKey;
+
+  const setEngineModeUI = (mode) => {
+    if (mode === 'cloud') {
+      optCloud.classList.add('active');
+      optLocal.classList.remove('active');
+      apiKeyContainer.classList.remove('hidden');
+      engineBadge.innerHTML = '🤖 Engine: Gemini Cloud';
+    } else {
+      optLocal.classList.add('active');
+      optCloud.classList.remove('active');
+      apiKeyContainer.classList.add('hidden');
+      engineBadge.innerHTML = '🤖 Engine: Local Heuristics';
+    }
+  };
+
+  setEngineModeUI(savedMode);
+
+  optLocal.addEventListener('click', () => {
+    setEngineModeUI('local');
+  });
+
+  optCloud.addEventListener('click', () => {
+    setEngineModeUI('cloud');
+  });
+
+  toggleKeyVisibilityBtn.addEventListener('click', () => {
+    if (geminiApiKey.type === 'password') {
+      geminiApiKey.type = 'text';
+      toggleKeyVisibilityBtn.textContent = '🙈';
+    } else {
+      geminiApiKey.type = 'password';
+      toggleKeyVisibilityBtn.textContent = '👁️';
+    }
+  });
+
+  closeEngineModalBtn.addEventListener('click', () => {
+    const activeMode = optCloud.classList.contains('active') ? 'cloud' : 'local';
+    localStorage.setItem('vocesEngineMode', activeMode);
+    localStorage.setItem('vocesApiKey', geminiApiKey.value.trim());
+    setEngineModeUI(activeMode);
+    engineModalOverlay.classList.add('hidden');
+  });
+
   // Render Dynamic Catalog grid from JS SCENARIOS
   renderScenarioCatalog();
 
@@ -995,10 +1151,6 @@ function init() {
   // Modal dialog togglers
   engineBadge.addEventListener('click', () => {
     engineModalOverlay.classList.remove('hidden');
-  });
-
-  closeEngineModalBtn.addEventListener('click', () => {
-    engineModalOverlay.classList.add('hidden');
   });
 
   engineModalOverlay.addEventListener('click', (e) => {

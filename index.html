@@ -350,33 +350,54 @@
   <div class="engine-selector-overlay hidden" id="engineModalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="engine-modal">
       <h3 id="modalTitle">Select AI Practice Engine</h3>
-      <p style="color: var(--text-muted); font-size: 0.85rem;">Choose how conversation and coaching replies are generated. Your code is prepared to adapt to all options!</p>
+      <p style="color: var(--text-muted); font-size: 0.85rem;">Choose how conversation and coaching replies are generated. Organic AI conversations require a Gemini API Key.</p>
       
       <div class="engine-option active" id="opt-local">
-        <span style="font-size: 1.5rem;">📱</span>
+        <span style="font-size: 1.5rem;" aria-hidden="true">📱</span>
         <div class="engine-option-meta">
-          <span class="engine-option-title">Local Heuristics (Current)</span>
-          <span class="engine-option-desc">Runs entirely on device. Perfect zero-latency, hand-crafted dialogues with specialized Mexican cultural insights. 100% offline.</span>
+          <span class="engine-option-title">Local Heuristics</span>
+          <span class="engine-option-desc">Zero-latency, hand-crafted dialogues with specialized Mexican cultural insights. 100% offline.</span>
         </div>
       </div>
 
-      <div class="engine-option disabled" id="opt-ollama" title="Future Integration">
-        <span style="font-size: 1.5rem;">🦙</span>
+      <div class="engine-option" id="opt-cloud">
+        <span style="font-size: 1.5rem;" aria-hidden="true">☁️</span>
+        <div class="engine-option-meta">
+          <span class="engine-option-title">Cloud LLM (Google Gemini)</span>
+          <span class="engine-option-desc">Connects directly to Gemini 1.5 Flash. Unconstrained, organic conversations. Requires a personal API key.</span>
+        </div>
+      </div>
+
+      <div class="engine-option disabled" id="opt-ollama" title="Future local LLM integration">
+        <span style="font-size: 1.5rem;" aria-hidden="true">🦙</span>
         <div class="engine-option-meta">
           <span class="engine-option-title">Local LLM (Ollama)</span>
-          <span class="engine-option-desc">Connects to a local model (e.g. Llama 3) running on your PC. Supports dynamic, completely unconstrained conversations.</span>
+          <span class="engine-option-desc">Connects to a model running on your local machine (e.g. via localhost:11434). Coming soon!</span>
         </div>
       </div>
 
-      <div class="engine-option disabled" id="opt-cloud" title="Future Integration">
-        <span style="font-size: 1.5rem;">☁️</span>
-        <div class="engine-option-meta">
-          <span class="engine-option-title">Cloud LLM (Gemini / OpenAI)</span>
-          <span class="engine-option-desc">Connects via a secure backend gateway to Gemini 1.5 or 2.0. Infinite conversation paths and professional, fluid coaching.</span>
+      <!-- Secure API Key Input Area (Dynamic) -->
+      <div class="api-key-container hidden" id="apiKeyContainer">
+        <label for="geminiApiKey" style="font-weight: 700; font-size: 0.85rem; color: var(--text-main); margin-bottom: 0.25rem; display: block;">Google Gemini API Key:</label>
+        <div style="display: flex; gap: 0.5rem; width: 100%; position: relative; align-items: center;">
+          <input type="password" id="geminiApiKey" placeholder="Paste your API key here (AIzaSy...)" style="flex: 1; padding: 0.75rem 2.5rem 0.75rem 1rem; border-radius: var(--border-radius-sm); border: 2px solid rgba(0,0,0,0.1); font-size: 0.95rem; width: 100%;" aria-label="Gemini API Key">
+          <button id="toggleKeyVisibilityBtn" style="background: none; border: none; cursor: pointer; font-size: 1.1rem; position: absolute; right: 10px; padding: 0.25rem;" title="Toggle password visibility" aria-label="Show or hide API key">👁️</button>
+        </div>
+        
+        <!-- Step-by-Step Instructions Box -->
+        <div class="instructions-box" id="keyInstructionsBox" style="margin-top: 1rem; background: rgba(11, 83, 69, 0.04); border-left: 4px solid var(--secondary); padding: 1rem; border-radius: var(--border-radius-sm); text-align: left; font-size: 0.85rem; line-height: 1.5;">
+          <strong style="color: var(--secondary); display: block; margin-bottom: 0.4rem; font-size: 0.9rem;">🔑 How to acquire a free Gemini API Key:</strong>
+          <ol style="margin-left: 1.2rem; display: flex; flex-direction: column; gap: 0.35rem; color: var(--text-main);">
+            <li>Go directly to the free <a href="https://aistudio.google.com/" target="_blank" style="color: var(--primary); text-decoration: underline; font-weight: 700;">Google AI Studio</a> portal.</li>
+            <li>Log in using any standard Google/Gmail account.</li>
+            <li>Click the blue <strong>"Get API Key"</strong> button on the left sidebar.</li>
+            <li>Click the button to **"Create API Key"** (either in a new project or an existing one) and copy your new key.</li>
+            <li>Paste your key in the box above! The official free tier has more than enough bandwidth for your conversational practice.</li>
+          </ol>
         </div>
       </div>
 
-      <button class="close-modal-btn" id="closeEngineModalBtn">Close & Stay Local</button>
+      <button class="close-modal-btn" id="closeEngineModalBtn">Apply & Save Engine</button>
     </div>
   </div>
 
