@@ -633,7 +633,7 @@ class ConversationEngine {
       ...this.conversationHistory
     ];
 
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${this.apiKey}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${this.apiKey}`;
 
     try {
       const response = await fetch(endpoint, {
