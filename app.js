@@ -1027,8 +1027,8 @@ function init() {
   const passcodeSubmitBtn = document.getElementById('passcodeSubmitBtn');
   const passcodeError = document.getElementById('passcodeError');
 
-  // Check if already authenticated in this session
-  if (sessionStorage.getItem('vocesValidated') === 'true') {
+  // Check if already authenticated
+  if (localStorage.getItem('vocesValidated') === 'true') {
     passcodeOverlay.classList.add('hidden');
   }
 
@@ -1036,7 +1036,7 @@ function init() {
     const entered = passcodeInput.value;
     const isCorrect = await checkPasscode(entered);
     if (isCorrect) {
-      sessionStorage.setItem('vocesValidated', 'true');
+      localStorage.setItem('vocesValidated', 'true');
       passcodeOverlay.style.transition = 'all 0.4s ease-out';
       passcodeOverlay.style.opacity = '0';
       setTimeout(() => {
