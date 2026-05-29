@@ -559,6 +559,7 @@ class ConversationEngine {
     this.currentTurn = 0;
     this.engineMode = localStorage.getItem('vocesEngineMode') || 'local';
     this.apiKey = localStorage.getItem('vocesApiKey') || '';
+    this.modelName = localStorage.getItem('vocesModelName') || 'gemini-3.5-flash';
     this.conversationHistory = []; // Tracks chat logs for Gemini API context
   }
 
@@ -633,7 +634,7 @@ class ConversationEngine {
       ...this.conversationHistory
     ];
 
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${this.apiKey}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${this.modelName}:generateContent?key=${this.apiKey}`;
 
     try {
       const response = await fetch(endpoint, {
@@ -1062,11 +1063,14 @@ function init() {
   const apiKeyContainer = document.getElementById('apiKeyContainer');
   const geminiApiKey = document.getElementById('geminiApiKey');
   const toggleKeyVisibilityBtn = document.getElementById('toggleKeyVisibilityBtn');
+  const geminiModelName = document.getElementById('geminiModelName');
 
   // Load saved settings
   const savedMode = localStorage.getItem('vocesEngineMode') || 'local';
   const savedKey = localStorage.getItem('vocesApiKey') || '';
+  const savedModel = localStorage.getItem('vocesModelName') || 'gemini-3.5-flash';
   geminiApiKey.value = savedKey;
+  geminiModelName.value = savedModel;
 
   const setEngineModeUI = (mode) => {
     if (mode === 'cloud') {
@@ -1106,6 +1110,7 @@ function init() {
     const activeMode = optCloud.classList.contains('active') ? 'cloud' : 'local';
     localStorage.setItem('vocesEngineMode', activeMode);
     localStorage.setItem('vocesApiKey', geminiApiKey.value.trim());
+    localStorage.setItem('vocesModelName', geminiModelName.value.trim() || 'gemini-3.5-flash');
     setEngineModeUI(activeMode);
     engineModalOverlay.classList.add('hidden');
   });
