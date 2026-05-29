@@ -1,4 +1,30 @@
-// Voces de México - Interactive Spanish Practice Logic
+// Flat translation dictionary for all local mock scenarios
+const LOCAL_TRANSLATIONS = {
+  "¡Hola, buenas tardes! Bienvenidos a Tacos El Trompo. ¿Qué les pongo, marchante? ¿Cuántos tacos se va a echar?": "Hello, good afternoon! Welcome to Tacos El Trompo. What can I get you, customer? How many tacos are you going to have?",
+  "¡Claro que sí, marchante! Tres al pastor con todo, cebolla y cilantro. ¿Y de tomar qué le damos? Tenemos horchata fresca, jamaica y refrescos.": "Of course, customer! Three al pastor with everything, onion and cilantro. And what can we get you to drink? We have fresh horchata, jamaica, and sodas.",
+  "Sale y vale. Ahorita salen calientitos. Oiga, una pregunta... ¿va a comer aquí o se los pongo para llevar?": "Alright! They will be out hot in just a second. Hey, a question... is it to eat here or shall I make it to-go?",
+  "Perfecto, jefe. Ya están envueltos en aluminio para que no se enfríen. ¿Le pongo salsa de la que pica o de la que no pica? ¿Algo más o le traigo la cuenta?": "Perfect, boss. They are already wrapped in foil so they don't get cold. Shall I add spicy or mild salsa? Anything else or shall I bring the check?",
+  
+  "¡Hola! Qué buena onda... qué súper bonito está tu perro. ¿Cómo se llama? ¿Y qué raza es?": "Hello! How cool... your dog is super pretty. What is their name? And what breed are they?",
+  "¡Ay, qué padre! Se ve bien cariñoso. Oye, una pregunta... ¿es macho o hembra? ¿Y cuántos años tiene?": "Oh, how neat! He/she looks very affectionate. Hey, a question... is it male or female? And how old are they?",
+  "¡Qué chido! Oye... ¿lo puedo acariciar? ¿O es medio tímido? ¿Es amigable o de casualidad muerde?": "How cool! Hey... can I pet him/her? Or is he/she a bit shy? Is he/she friendly or does he/she happen to bite?",
+  
+  "¡Hola! Buenas tardes. Bienvenido a Súper Express. ¿Le puedo ayudar a encontrar algo en particular?": "Hello! Good afternoon. Welcome to Súper Express. Can I help you find something in particular?",
+  "¡Claro que sí! Los aguacates están justo en el pasillo tres, al fondo junto a los tomates. Están bien fresquecitos hoy, ¿eh?": "Of course! The avocados are right in aisle three, at the back next to the tomatoes. They are very fresh today, huh?",
+  "Las tortillas de maíz calientitas las tenemos en una hielera especial justo a un lado de las cajas. ¿Necesita ayuda con algo más de su lista?": "We have the warm corn tortillas in a special cooler right next to the registers. Do you need help with anything else on your list?",
+  
+  "¡Buenas tardes! Bienvenido a Calzado León. ¿Busca algún estilo de calzado en particular? Hoy nos llegaron unas botas vaqueras preciosas.": "Good afternoon! Welcome to Calzado León. Are you looking for any specific shoe style? Today we got some gorgeous cowboy boots.",
+  "¡Excelente gusto! Esas botas de piel de ternera son hechas artesanalmente en León. Son de súper buena calidad. ¿Qué número calza usted, jefe?": "Excellent taste! Those calfskin boots are handcrafted in León. They are super high quality. What size do you wear, boss?",
+  "Muy bien, aquí tiene el número siete. Pruébeselas, camine un poquito... ¿Qué tal las siente? ¿Se las lleva puestas o se las pongo en su caja?": "Very well, here is size seven. Try them on, walk around a bit... How do they feel? Are you going to wear them out or shall I put them in their box?",
+  
+  "¡Hola, muy buenos días! Bienvenido a Café Corazón. ¿Qué cafecito le preparamos hoy?": "Hello, a very good morning! Welcome to Café Corazón. What coffee shall we prepare for you today?",
+  "Excelente elección. Nuestro café de olla lleva canela de la buena y piloncillo de Veracruz. ¿Gusta acompañarlo con algo de nuestra panadería recién horneada?": "Excellent choice. Our café de olla has high-quality cinnamon and Veracruz brown cane sugar. Would you like to pair it with something from our freshly baked goods?",
+  "Le recomiendo ampliamente la concha de vainilla, acaba de salir del horno y está súper suavecita. ¿Se la agregamos a su orden?": "I highly recommend the vanilla concha, it just came out of the oven and is super soft. Shall we add it to your order?",
+  
+  "¡Pásele, marchante! Sin compromiso, vea las hermosas artesanías de barro hechas a mano por mi familia en Oaxaca. ¿Busca algo bonito para regalar?": "Come on in, customer! No obligation, look at the beautiful clay handicrafts handmade by my family in Oaxaca. Are you looking for something nice for a gift?",
+  "Ese jarrón de barro rojo es una belleza única, pintado a mano con motivos tradicionales. Normalmente está en trescientos pesos, pero para usted, se lo dejo en doscientos cincuenta. ¿Qué dice, se lo lleva?": "That red clay pot is a unique beauty, hand-painted with traditional patterns. It is normally three hundred pesos, but for you, I'll let you have it for two hundred and fifty. What do you say, will you take it?",
+  "¡Excelente decisión! Se lo voy a envolver en bastante papel periódico para que viaje seguro y no se vaya a romper. ¿Va a pagar en efectivo o con tarjeta?": "Excellent decision! I am going to wrap it in plenty of newspaper so it travels safely and doesn't break. Are you paying with cash or card?"
+};
 
 // 1. Scenario Database (Comprehensive Mexican Practice Scenarios)
 const SCENARIOS = {
@@ -613,6 +639,7 @@ class ConversationEngine {
     You MUST return a JSON object with this exact structure (no markdown formatting, no outer wrappers other than JSON):
     {
       "characterText": "Your character's next spoken line in Spanish (1-2 sentences)",
+      "characterTranslation": "English translation of your character's next spoken line in Spanish (1-2 sentences)",
       "translation": "English translation of what the user just said",
       "accuracy": "Excelente | Correcto | Bien | Inexacto",
       "accuracyFeedback": "Detailed, encouraging English feedback on their spelling, grammar, and pronunciation.",
@@ -668,7 +695,8 @@ class ConversationEngine {
         accuracy: data.accuracy,
         accuracyFeedback: data.accuracyFeedback,
         cultureFeedback: data.cultureTip,
-        dynamicSpeechText: data.characterText
+        dynamicSpeechText: data.characterText,
+        characterTranslation: data.characterTranslation
       };
     } catch (err) {
       console.error("Gemini API Error:", err);
@@ -914,7 +942,7 @@ async function handleUserSubmit(userInputText) {
     setTimeout(() => {
       // In cloud mode, the next character turn is dynamically returned by Gemini API!
       if (activeEngine.engineMode === 'cloud' && feedback.dynamicSpeechText) {
-        addChatBubble('character', activeEngine.scenarioData.characterName, feedback.dynamicSpeechText, feedback.dynamicSpeechText);
+        addChatBubble('character', activeEngine.scenarioData.characterName, feedback.dynamicSpeechText, feedback.dynamicSpeechText, feedback.characterTranslation);
         speakText(feedback.dynamicSpeechText);
         systemStatusToast.textContent = "Your turn! Respond organically.";
         systemStatusToast.style.color = "var(--primary)";
@@ -929,24 +957,40 @@ async function handleUserSubmit(userInputText) {
   }
 }
 
-function addChatBubble(sender, name, text, speechText = null) {
+function addChatBubble(sender, name, text, speechText = null, translationText = null) {
   const bubble = document.createElement('article');
   bubble.className = `chat-bubble ${sender}`;
   
+  // Auto-resolve translation inside the flat lookup for local scenarios
+  if (!translationText && sender === 'character') {
+    translationText = LOCAL_TRANSLATIONS[text];
+  }
+
   let playAudioBtnHtml = '';
+  let translateBtnHtml = '';
   if (sender === 'character' && speechText) {
     playAudioBtnHtml = `<button class="speech-audio-btn" data-speech="${speechText}" title="Repeat audio" aria-label="Repeat character audio">🔊</button>`;
+    if (translationText) {
+      translateBtnHtml = `<button class="translate-bubble-btn" title="Translate response" aria-label="Translate character response">🌐</button>`;
+    }
   } else if (sender === 'user') {
     playAudioBtnHtml = `<button class="speech-audio-btn" data-speech="${text}" title="Speak my response" aria-label="Hear my spoken text">🔊</button>`;
+  }
+
+  let translationParagraph = '';
+  if (translationText) {
+    translationParagraph = `<p class="bubble-translation hidden">${translationText}</p>`;
   }
 
   bubble.innerHTML = `
     <div class="bubble-meta">
       <span>${name}</span>
       ${playAudioBtnHtml}
+      ${translateBtnHtml}
     </div>
     <div class="bubble-content">
       <p>${text}</p>
+      ${translationParagraph}
     </div>
   `;
   
@@ -958,6 +1002,16 @@ function addChatBubble(sender, name, text, speechText = null) {
     audioBtn.addEventListener('click', (e) => {
       const speechVal = e.currentTarget.getAttribute('data-speech');
       speakText(speechVal);
+    });
+  }
+
+  const translateBtn = bubble.querySelector('.translate-bubble-btn');
+  if (translateBtn) {
+    translateBtn.addEventListener('click', () => {
+      const transText = bubble.querySelector('.bubble-translation');
+      if (transText) {
+        transText.classList.toggle('hidden');
+      }
     });
   }
 }

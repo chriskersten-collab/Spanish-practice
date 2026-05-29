@@ -1091,4 +1091,42 @@ a {
   cursor: not-allowed;
 }
 
+/* Chat Bubble Inline Translation Styles */
+.translate-bubble-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  padding: 0.2rem;
+  display: inline-flex;
+  align-items: center;
+  transition: var(--transition-normal);
+  vertical-align: middle;
+  opacity: 0.6;
+}
+
+.translate-bubble-btn:hover {
+  transform: scale(1.18);
+  color: var(--primary);
+  opacity: 1;
+}
+
+.bubble-translation {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.3s ease-out;
+  line-height: 1.4;
+  font-style: italic;
+  display: block;
+}
+
+.chat-bubble.user .translate-bubble-btn {
+  display: none; /* User doesn't need to translate their own Spanish responses */
+}
+
+
 
