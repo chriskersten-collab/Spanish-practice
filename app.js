@@ -634,6 +634,7 @@ class ConversationEngine {
        - Evaluate their Spanish accuracy and phrasing. Give a score: "Excelente", "Correcto", "Bien", or "Inexacto".
        - Provide helpful English coaching feedback on their grammar, pronunciation, and spelling in "accuracyFeedback".
        - Highlight Mexican cultural tips, local vocabulary choices (e.g. why they should use "Me da" instead of "quiero", or "para llevar" instead of "para ir"), or local slang in "cultureTip". Make sure it is specific and highly educational!
+    4. CRITICAL: Never use raw double quotes inside your JSON string values (for example: "accuracyFeedback": "You used the word \"Me da\""). If you need to quote a Spanish word or phrase inside your text values, ALWAYS use single quotes (e.g. 'Me da' or 'para llevar') to avoid corrupting the JSON syntax.
 
     OUTPUT FORMAT:
     You MUST return a JSON object with this exact structure (no markdown formatting, no outer wrappers other than JSON):
@@ -682,7 +683,14 @@ class ConversationEngine {
 
       const json = await response.json();
       const rawText = json.candidates[0].content.parts[0].text;
-      const data = JSON.parse(rawText);
+      
+      // Defensive sanitization: Clean any code block markers if returned
+      let cleanedText = rawText.trim();
+      if (cleanedText.startsWith("```")) {
+        cleanedText = cleanedText.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
+      }
+
+      const data = JSON.parse(cleanedText);
 
       // Record character reply to active conversation history
       this.conversationHistory.push({
