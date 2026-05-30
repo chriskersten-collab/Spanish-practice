@@ -23,7 +23,15 @@ const LOCAL_TRANSLATIONS = {
   
   "¡Pásele, marchante! Sin compromiso, vea las hermosas artesanías de barro hechas a mano por mi familia en Oaxaca. ¿Busca algo bonito para regalar?": "Come on in, customer! No obligation, look at the beautiful clay handicrafts handmade by my family in Oaxaca. Are you looking for something nice for a gift?",
   "Ese jarrón de barro rojo es una belleza única, pintado a mano con motivos tradicionales. Normalmente está en trescientos pesos, pero para usted, se lo dejo en doscientos cincuenta. ¿Qué dice, se lo lleva?": "That red clay pot is a unique beauty, hand-painted with traditional patterns. It is normally three hundred pesos, but for you, I'll let you have it for two hundred and fifty. What do you say, will you take it?",
-  "¡Excelente decisión! Se lo voy a envolver en bastante papel periódico para que viaje seguro y no se vaya a romper. ¿Va a pagar en efectivo o con tarjeta?": "Excellent decision! I am going to wrap it in plenty of newspaper so it travels safely and doesn't break. Are you paying with cash or card?"
+  "¡Excelente decisión! Se lo voy a envolver en bastante papel periódico para que viaje seguro y no se vaya a romper. ¿Va a pagar en efectivo o con tarjeta?": "Excellent decision! I am going to wrap it in plenty of newspaper so it travels safely and doesn't break. Are you paying with cash or card?",
+  
+  "¡Súbale, súbale! ¿A dónde va, güero? ¿Por dónde te llevo?": "Hop in, hop in! Where are you going, blondie/friend? Which way should I take you?",
+  "¡Sí, claro! Pasamos justo por el Zócalo y la Alameda. Súbete. Oye, ¿ya sabes cuánto es del pasaje o te cobro de una vez?": "Yes, of course! We pass right by the Zócalo and the Alameda. Hop in. Hey, do you already know how much the fare is, or should I charge you right now?",
+  "Son doce pesitos, jefe. Me los puedes pagar al bajar o de una vez si traes cambio. Avísame con tiempo dónde te bajas.": "It's twelve pesos, boss. You can pay me when you get off or right now if you have change. Let me know in advance where you get off.",
+  
+  "¡Buenas! ¿A dónde lo llevo, jefe? El tráfico está pesado hoy, pero nos vamos rápido.": "Good day! Where can I take you, boss? Traffic is heavy today, but we will get there fast.",
+  "Huy, jefe... ir hasta la Zona Rosa a esta hora con todo el tráfico de Reforma... le sale en doscientos cincuenta pesos. ¿Cómo ve? ¿Se sube?": "Oh, boss... going all the way to the Zona Rosa at this hour with all the traffic on Reforma... it will cost you two hundred and fifty pesos. What do you think? Hop in?",
+  "Híjole, jefe... doscientos es muy poco por el tráfico. Déjelo en doscientos veinte y ya nos vamos. Es un trato justo, ¿no cree?": "Geez, boss... two hundred is too little because of the traffic. Let's make it two hundred and twenty and we'll head out. It's a fair deal, don't you think?"
 };
 
 // 1. Scenario Database (Comprehensive Mexican Practice Scenarios)
@@ -568,6 +576,190 @@ const SCENARIOS = {
             accuracy: "Excelente (Excellent)",
             accuracyFeedback: "Payment choice made!",
             cultureFeedback: "🌶️ **Cash in Mexico**: In local traditional markets (**tianguis** or **mercados de artesanías**), cash (**efectivo**) is highly preferred and sometimes the only accepted form of payment. Having small-denomination bills (like 50, 100, or 200 peso notes) is extremely helpful."
+          };
+          return feedback;
+        }
+      }
+    ]
+  },
+
+  'scenario-colectivo': {
+    id: 'scenario-colectivo',
+    title: 'El Colectivo Chilango',
+    characterName: 'Don Beto',
+    emoji: '🚐',
+    role: 'Chofer de Colectivo (Van Driver)',
+    difficulty: 'Intermedio',
+    description: 'Flag down a collective van (pesero) in Mexico City, ask if it goes to the Centro, inquire about the fare, and call out your stop using authentic Mexican slang.',
+    objective: 'Ask Don Beto if he is going to "el Centro", ask for the fare ("¿Cuánto es del pasaje?"), and call out your stop using local Mexican phrasing ("¡Bajan!" or "¡En la esquina bajan!").',
+    completionMessage: 'You rode the pesero like a true chilango! You paid your pasaje and called out your stop with perfect Mexican timing. ¡Excelente viaje!',
+    turns: [
+      {
+        characterText: "¡Súbale, súbale! ¿A dónde va, güero? ¿Por dónde te llevo?",
+        characterSpeech: "Súbale, súbale. ¿A dónde va, güero? ¿Por dónde te llevo?",
+        promptEnglish: "Don Beto welcomes you. Ask him politely if he is going to downtown ('el Centro').",
+        expectedTip: "Start with 'Disculpe, ¿va para el Centro?' or 'Buenas tardes, ¿va al Centro?'",
+        evaluate: (input) => {
+          const lower = input.toLowerCase();
+          let feedback = {
+            translation: `"${input}"`,
+            accuracy: "Correcto (Correct)",
+            accuracyFeedback: "You asked if the van goes to the Centro.",
+            cultureFeedback: ""
+          };
+
+          if (lower.includes("disculpe") || lower.includes("buenas") || lower.includes("tardes")) {
+            feedback.accuracyFeedback = "Great job opening with a polite greeting or apology.";
+          }
+
+          if (lower.includes("centro")) {
+            feedback.accuracy = "Excelente (Excellent)";
+            feedback.cultureFeedback = "🌶️ **Mexican Colectivos**: In Mexico, especially in CDMX, these shared minivans or small buses are affectionately called **'peseros'** (historically because the fare was one peso) or **'combis'**. Don Beto calls you **'güero'**—a very common, affectionate Mexican slang term used by merchants and drivers to refer to customers regardless of their actual hair color!";
+          } else {
+            feedback.accuracy = "Bien (Good)";
+            feedback.accuracyFeedback += " However, remember to specify 'el Centro' to fulfill your challenge objective!";
+          }
+
+          return feedback;
+        }
+      },
+      {
+        characterText: "¡Sí, claro! Pasamos justo por el Zócalo y la Alameda. Súbete. Oye, ¿ya sabes cuánto es del pasaje o te cobro de una vez?",
+        characterSpeech: "Sí, claro. Pasamos justo por el Zócalo y la Alameda. Súbete. Oye, ¿ya sabes cuánto es del pasaje o te cobro de una vez?",
+        promptEnglish: "Don Beto confirms the route. Ask him how much the fare is using local transit vocabulary.",
+        expectedTip: "Ask '¿Cuánto es del pasaje?' or '¿Cuánto cuesta el pasaje?'",
+        evaluate: (input) => {
+          const lower = input.toLowerCase();
+          let feedback = {
+            translation: `"${input}"`,
+            accuracy: "Correcto (Correct)",
+            accuracyFeedback: "You asked for the fare.",
+            cultureFeedback: ""
+          };
+
+          if (lower.includes("pasaje")) {
+            feedback.accuracy = "Excelente (Excellent)";
+            feedback.accuracyFeedback = "Perfect! Using the word 'pasaje' is the absolute most authentic and common way to refer to fares in Mexican public transport.";
+            feedback.cultureFeedback = "🌶️ **Fares & Payments**: In Mexico, the bus or van fare is called **'el pasaje'** (never 'boleto' or 'tarifa' in this context). On busy routes, passengers pass their money forward through other riders shouting **'¿Le pasa mi pasaje, por favor?'** and the change is passed back the same way. It is a beautiful display of community trust!";
+          } else if (lower.includes("costo") || lower.includes("cuánto es") || lower.includes("cuesta")) {
+            feedback.accuracy = "Bien (Good)";
+            feedback.cultureFeedback = "🌶️ **Transit Tip**: While '¿Cuánto cuesta?' or '¿Cuánto es?' is fully understood, try using **'¿Cuánto es del pasaje?'** to sound like a native Mexican rider!";
+          }
+
+          return feedback;
+        }
+      },
+      {
+        characterText: "Son doce pesitos, jefe. Me los puedes pagar al bajar o de una vez si traes cambio. Avísame con tiempo dónde te bajas.",
+        characterSpeech: "Son doce pesitos, jefe. Me los puedes pagar al bajar o de una vez si traes cambio. Avísame con tiempo dónde te bajas.",
+        promptEnglish: "The fare is 12 pesos. You are approaching your stop. Request to get off using authentic Mexican transit slang.",
+        expectedTip: "Yell '¡Bajan!' or '¡En la esquina bajan, por favor!'.",
+        evaluate: (input) => {
+          const lower = input.toLowerCase();
+          let feedback = {
+            translation: `"${input}"`,
+            accuracy: "Correcto (Correct)",
+            accuracyFeedback: "You requested your stop.",
+            cultureFeedback: ""
+          };
+
+          if (lower.includes("bajan") || lower.includes("esquina bajan")) {
+            feedback.accuracy = "Excelente (Excellent)";
+            feedback.accuracyFeedback = "Fabulous! Shouting '¡Bajan!' or '¡En la esquina bajan!' is the ultimate authentic Mexican way to get a driver to stop the vehicle.";
+            feedback.cultureFeedback = "🌶️ **Calling Your Stop**: In Mexico, passengers do not usually pull a cord or press a button. Instead, you raise your voice and shout **'¡Bajan!'** (They are getting off) or **'¡En la esquina bajan, por favor!'** (Getting off at the corner, please) so the driver hears you over the noise. It takes a bit of confidence but sounds incredibly local!";
+          } else {
+            feedback.accuracy = "Bien (Good)";
+            feedback.cultureFeedback = "🌶️ **Mexican Slang Tip**: Don Beto used the diminutive **'doce pesitos'** (twelve little pesos). Mexicans frequently use diminutives like *pesitos, ahorita, despacito* to sound softer, friendlier, and more polite.";
+          }
+
+          return feedback;
+        }
+      }
+    ]
+  },
+
+  'scenario-taxi': {
+    id: 'scenario-taxi',
+    title: 'Negociando el Taxi',
+    characterName: 'Don Sergio',
+    emoji: '🚕',
+    role: 'Taxista (Cab Driver)',
+    difficulty: 'Intermedio',
+    description: 'In Mexican cities, street cabs often do not use taximeters for long rides or trips out of their zone. Practice stating your destination and negotiating a flat rate before boarding.',
+    objective: 'Politely state you want to go to "la Zona Rosa", ask how much he will charge ("¿Cuánto me cobra?"), and bargain for a lower price when he quotes too high.',
+    completionMessage: 'Excellent negotiation! You agreed on a fair rate of 220 pesos with Don Sergio and are on your way to the Zona Rosa. ¡Buen viaje!',
+    turns: [
+      {
+        characterText: "¡Buenas! ¿A dónde lo llevo, jefe? El tráfico está pesado hoy, pero nos vamos rápido.",
+        characterSpeech: "Buenas. ¿A dónde lo llevo, jefe? El tráfico está pesado hoy, pero nos vamos rápido.",
+        promptEnglish: "Don Sergio greets you. Say you want to go to 'la Zona Rosa' and ask how much he will charge.",
+        expectedTip: "Say: 'A la Zona Rosa, por favor. ¿Cuánto me cobra?' or 'Disculpe, ¿cuánto me cobra a la Zona Rosa?'",
+        evaluate: (input) => {
+          const lower = input.toLowerCase();
+          let feedback = {
+            translation: `"${input}"`,
+            accuracy: "Correcto (Correct)",
+            accuracyFeedback: "You stated your destination and asked for the price.",
+            cultureFeedback: ""
+          };
+
+          if (lower.includes("rosa")) {
+            if (lower.includes("cobra") || lower.includes("cobrar")) {
+              feedback.accuracy = "Excelente (Excellent)";
+              feedback.accuracyFeedback = "Perfect! Asking '¿Cuánto me cobra a...?' is the quintessential Mexican way to ask a taxi driver for a flat-rate fare before getting in.";
+            } else {
+              feedback.accuracyFeedback += " Good job. Next time, try using the verb 'cobrar' (e.g. '¿Cuánto me cobra?') for the most natural phrasing.";
+            }
+            feedback.cultureFeedback = "🌶️ **Taxi Culture**: In Mexico, street taxis are extremely common. Unlike in some countries, it is customary to state your destination *before* getting into the cab, and ask **'¿Cuánto me cobra a [destination]?'** to agree on a price, as taximeters (**taxímetros**) are often ignored or not used for longer trips.";
+          } else {
+            feedback.accuracy = "Bien (Good)";
+            feedback.accuracyFeedback += " Be sure to mention 'la Zona Rosa' to fulfill your challenge objective!";
+          }
+
+          return feedback;
+        }
+      },
+      {
+        characterText: "Huy, jefe... ir hasta la Zona Rosa a esta hora con todo el tráfico de Reforma... le sale en doscientos cincuenta pesos. ¿Cómo ve? ¿Se sube?",
+        characterSpeech: "Huy, jefe. ir hasta la Zona Rosa a esta hora con todo el tráfico de Reforma. le sale en doscientos cincuenta pesos. ¿Cómo ve? ¿Se sube?",
+        promptEnglish: "Don Sergio quotes 250 pesos. Negotiate a lower rate (e.g., 200 pesos) politely using Mexican bargaining phrasing.",
+        expectedTip: "Ask: '¿No me lo deja en doscientos pesos?' or '¿Se puede por doscientos?'",
+        evaluate: (input) => {
+          const lower = input.toLowerCase();
+          let feedback = {
+            translation: `"${input}"`,
+            accuracy: "Correcto (Correct)",
+            accuracyFeedback: "You negotiated a lower price.",
+            cultureFeedback: ""
+          };
+
+          if (lower.includes("deja") || lower.includes("dejar")) {
+            feedback.accuracy = "Excelente (Excellent)";
+            feedback.accuracyFeedback = "Fabulous! '¿No me lo deja en...?' is the perfect, polite, and authentic way to request a discount or bargain in Mexico.";
+            feedback.cultureFeedback = "🌶️ **El Regateo (Bargaining)**: When bargaining in Mexico, you want to sound polite and soft. Using **'¿No me lo deja en [price]?'** (Won't you leave it at...?) or **'¿Me lo deja más barato?'** is much warmer and more successful than demanding a discount.";
+          } else {
+            feedback.cultureFeedback = "🌶️ **Negotiation Tip**: To sound completely natural when bargaining, try using the standard formula: **'¿No me lo deja en [price] pesos?'** It works like a charm!";
+          }
+
+          if (lower.includes("doscientos") || lower.includes("200")) {
+            feedback.accuracyFeedback += " You correctly suggested 200 pesos.";
+          }
+
+          return feedback;
+        }
+      },
+      {
+        characterText: "Híjole, jefe... doscientos es muy poco por el tráfico. Déjelo en doscientos de una vez... perdón, déjelo en doscientos veinte y ya nos vamos. Es un trato justo, ¿no cree?",
+        characterSpeech: "Híjole, jefe. doscientos es muy poco por el tráfico. Déjelo en doscientos de una vez... perdón, déjelo en doscientos veinte y ya nos vamos. Es un trato justo, ¿no cree?",
+        promptEnglish: "Don Sergio counters with 220 pesos. Accept the deal and tell him to head out.",
+        expectedTip: "Say: 'Está bien, doscientos veinte, trato hecho. ¡Vámonos!'",
+        evaluate: (input) => {
+          const lower = input.toLowerCase();
+          let feedback = {
+            translation: `"${input}"`,
+            accuracy: "Excelente (Excellent)",
+            accuracyFeedback: "Deal closed! You accepted the price and are ready to go.",
+            cultureFeedback: "🌶️ **Mexican Expressions**: Don Sergio started with **'Híjole'**—this is one of the most famous Mexican exclamations, used to express surprise, concern, or hesitation (like 'Oh boy!' or 'Jeez!'). Concluding a business deal or taxi negotiation with **'Trato hecho'** (Deal made) and **'¡Vámonos!'** (Let's go!) is perfect Chilango style!"
           };
           return feedback;
         }
