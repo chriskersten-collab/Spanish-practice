@@ -863,7 +863,44 @@ class ConversationEngine {
         body: JSON.stringify({
           contents: contents,
           generationConfig: {
-            responseMimeType: "application/json"
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: "OBJECT",
+              properties: {
+                characterText: {
+                  type: "STRING",
+                  description: "Your character's next spoken line in Spanish (1-2 sentences)"
+                },
+                characterTranslation: {
+                  type: "STRING",
+                  description: "English translation of your character's next spoken line"
+                },
+                translation: {
+                  type: "STRING",
+                  description: "English translation of what the user just said"
+                },
+                accuracy: {
+                  type: "STRING",
+                  description: "User's Spanish accuracy score: Excelente, Correcto, Bien, or Inexacto"
+                },
+                accuracyFeedback: {
+                  type: "STRING",
+                  description: "Encouraging feedback on grammar, spelling, and pronunciation"
+                },
+                cultureTip: {
+                  type: "STRING",
+                  description: "Cultural tip or vocabulary lesson specific to Mexican Spanish"
+                }
+              },
+              required: [
+                "characterText",
+                "characterTranslation",
+                "translation",
+                "accuracy",
+                "accuracyFeedback",
+                "cultureTip"
+              ]
+            }
           }
         })
       });
